@@ -9,6 +9,11 @@ n: 26518484190072684543796636642573643429663718007657844401363773206659586306986
 e: 65537 
 c: 14348338827461086677721392146480940700779126717642704712390609979555667316222300910938184262325989361356621355740821450291276190410903072539047611486439984853997473162360371156442125577815817328959277482760973390721183548251315381656163549044110292209833480901571843401260931970647928971053471126873192145825248657671112394111129236255144807222107062898136588067644203143226369746529685617078054235998762912294188770379463390263607054883907325356551707971088954430361996309098504380934167675525860405086306135899933171103093138346158349497350586212612442120636759620471953311221396375007425956203746772190351265066237
 ```
+We're given an RSA-encrypted ciphertext, along with the RSA modulus n and public exponent e. The goal is to recover the original plaintext flag.
+
+##### n = the RSA modulus
+##### e = the public exponent
+##### c = ciphertext
 
 ### rsa_easy.py
 ```py
@@ -52,6 +57,20 @@ if __name__ == "__main__":
     f.write(f"c: {ciphertext}")
     f.close()
 ```
+```py
+def gen_primes(bit_length, diff=2**525):
+    p = nextprime(random.getrandbits(bit_length))
+    q = nextprime(p + random.randint(diff//2, diff))
+```
+from the code we can see:
+The two prime numbers used in RSA, p and q in this challenge, they are very close to each other. Based on the code, q is picked by adding a small number to p. Because p and q are so close, we can use Fermat’s Factorization to break the RSA key. Fermat’s method works best when the two numbers (p and q) are close together. It tries to write the big number n as a difference of two squares:
+```
+n = a^2 - b^2
+n = (a+b)(a-b)
+```
+
+if we can find a and b that fit this, we can get p and q easily. In this challenge, because p and q are so close, Fermat’s trick works quickly and lets us factor n. Once we have p and q, we can break RSA and get the flag.
+
 ### Decrypt.py
 ```py
 from math import isqrt
